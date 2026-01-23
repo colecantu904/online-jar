@@ -1,7 +1,7 @@
 
 async function getFirstRoom( event ) {
     
-    event.prevenDefault();
+    // event.prevenDefault();
 
     try {
         const response = await fetch('/api/get-room');
