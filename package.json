@@ -1,0 +1,22 @@
+{
+  "name": "online-jar",
+  "version": "1.0.0",
+  "type" : "module",
+  "description": "This is a simple web app providing a online swear jar.",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Cole Cantu",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/colecantu904/online-jar.git"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.2"
+  }
+}
