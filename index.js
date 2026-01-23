@@ -1,4 +1,3 @@
-import db from "./lib/database"
 
 async function getFirstRoom( event ) {
     
