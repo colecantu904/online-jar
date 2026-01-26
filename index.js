@@ -8,7 +8,32 @@
 // navigate to it. Will I need users in order to track who is submitting to 
 // the jar?
 
+let currentRoom = '';
+let currentRoomElement = document.getElementById("current-room-code");
+
+let currentAmount = 0;
+let currentAmountElement = document.getElementById("current-jar-amount");
+
 const addForm = document.getElementById("jar-form");
+
+
+async function getJarAmount( jarCode ) {
+    try {
+      const request = new Request("api/get-current", {
+        method: "POST",
+        headers: { "Content-type": "application/json" },
+        body: JSON.stringify({ roomCode: jarCode }),
+      });
+
+      const response = await fetch(request);
+
+      return response.json()
+
+    } catch (error) {
+      console.log(`Error fetching from get-current`, error);
+      return error
+    }
+}
 
 addForm.addEventListener("submit",  async ( event ) => {
 
@@ -19,26 +44,44 @@ addForm.addEventListener("submit",  async ( event ) => {
     // works
     const data = Object.fromEntries(formData.entries());
 
-    try {
-        const request = new Request('/api/add-jar', {
-            method: 'POST',
-            headers: {'Content-type' : 'application/json'},
-            body: JSON.stringify({roomCode : data.roomCode, amount : 1})
-        });
+    currentRoom = data.roomCode;
 
-        console.log(event);
+    currentRoomElement.innerHTML = currentRoom;
 
-        const response = await fetch(request);
+    const responseData = await getJarAmount(currentRoom);
 
-        console.log(response);
+    currentAmount = responseData[0].jar_amount;
 
-        const responseData = await response.json();
+    currentAmountElement.innerHTML = currentAmount;
 
-        console.log(responseData);
-        
-    } catch (error) {
-        console.log("Error fetching data at /api/get-room", error);
-    }
+    console.log(responseData);
+    
 })
 
-// async function addToJar( amount )
+async function addToJar( event ) {
+
+    event.preventDefault();
+
+    try {
+      const request = new Request("/api/add-jar", {
+        method: "POST",
+        headers: { "Content-type": "application/json" },
+        body: JSON.stringify({ roomCode: currentRoom, amount: 1 }),
+      });
+
+      const response = await fetch(request);
+
+      console.log(response);
+
+      const responseData = await response.json();
+
+      currentAmount = responseData[0].jar_amount;
+      currentAmountElement.innerHTML = currentAmount;
+
+      console.log(responseData);
+    } catch (error) {
+      console.log("Error fetching data at /api/get-room", error);
+    }
+}
+
+window.addToJar = addToJar;

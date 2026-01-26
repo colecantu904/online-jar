@@ -19,8 +19,9 @@ export default async function handler(request, response) {
         const db = neon(process.env.DATABASE_URL);
 
         // do some things to get the info from the request
-        await db`UPDATE jars SET jar_amount = jar_amount + ${testing_amount} WHERE jar_code = ${testing_room_code}`;
+        await db`UPDATE jars SET jar_amount = jar_amount + ${testing_amount}, last_event_on = NOW() WHERE jar_code = ${testing_room_code}`;
 
+        // better way to get the updated jar amount from the last command?
         const data = await db`SELECT jar_amount FROM jars WHERE jar_code = ${testing_room_code}`;
 
         return response.status(200).json(data);
