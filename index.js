@@ -8,24 +8,37 @@
 // navigate to it. Will I need users in order to track who is submitting to 
 // the jar?
 
-async function getFirstRoom( event ) {
-    
-    // event.prevenDefault();
+const addForm = document.getElementById("jar-form");
+
+addForm.addEventListener("submit",  async ( event ) => {
+
+    event.preventDefault();
+
+    const formData = new FormData(addForm);
+
+    // works
+    const data = Object.fromEntries(formData.entries());
 
     try {
-        const response = await fetch('/api/get-room');
+        const request = new Request('/api/add-jar', {
+            method: 'POST',
+            headers: {'Content-type' : 'application/json'},
+            body: JSON.stringify({roomCode : data.roomCode, amount : 1})
+        });
+
+        console.log(event);
+
+        const response = await fetch(request);
 
         console.log(response);
 
-        const data = await response.json();
+        const responseData = await response.json();
 
-        console.log(data);
+        console.log(responseData);
         
     } catch (error) {
         console.log("Error fetching data at /api/get-room", error);
     }
-}
+})
 
 // async function addToJar( amount )
-
-window.getFirstRoom = getFirstRoom;

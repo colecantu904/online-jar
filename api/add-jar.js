@@ -10,8 +10,10 @@ import { neon } from "@neondatabase/serverless"
 
 export default async function handler(request, response) {
     try {
-        let testing_room_code = 'ABCDEF';
-        let testing_amount = 10;
+        const requestBody = request.body;
+
+        let testing_room_code = requestBody.roomCode;
+        let testing_amount = requestBody.amount;
         
         // we are making a connection!!
         const db = neon(process.env.DATABASE_URL);
