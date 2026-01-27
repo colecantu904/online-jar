@@ -25,7 +25,9 @@ let currentRoomElement = document.getElementById("current-room-code");
 let currentAmount = 0;
 let currentAmountElement = document.getElementById("current-jar-amount");
 
-const addForm = document.getElementById("jar-form");
+const addForm = document.getElementById("join-jar-form");
+
+const newJarElement = document.getElementById("made-jar-code")
 
 
 async function getJarAmount( jarCode ) {
@@ -59,6 +61,7 @@ async function joinJar( jarCode ) {
       // update display
       currentRoomElement.innerHTML = currentRoom;
       currentAmountElement.innerHTML = currentAmount;
+      addForm.value = currentRoom;
     } else {
         console.log("Invalid jar code!")
     }
@@ -107,9 +110,44 @@ async function addToJar( event ) {
     }
 }
 
-// function createJar() {
-// makes random code sequences until one works??
-// how to prevent from spamming??
-// }
+async function makeJar( event ) {
+    event.preventDefault()
+
+    // we will just make it at random!
+    // even then it will be less of a rate waste
+    // then spammers
+
+    let madeRoomCode = '';
+    let foundValid = false;
+
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    while ( !foundValid ) {
+
+      for (i = 0; i < 6; i++) {
+        madeRoomCode += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+
+      const request = new Request("/api/make-jar", {
+        method: "POST",
+        headers: { "Content-type": "application/json" },
+        body: JSON.stringify({ roomCode: madeRoomCode }),
+      });
+
+      let response = await fetch(request);
+
+      if ( !(response.length > 0) ) {
+        foundValid = true;
+      }
+    }
+
+    // update display with share url
+    let url = new URL(document.location.href);
+
+    let newUrl = url.origin + url.pathname;
+
+    newJarElement.innerHTML = `${newUrl}?jar_code=${madeRoomCode}`
+    
+}
 
 window.addToJar = addToJar;

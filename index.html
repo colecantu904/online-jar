@@ -25,12 +25,19 @@
         </div>
 
         <div>
-            <form id="jar-form">
-                <input type="text" name="roomCode" placeholder="Room Code..." value="ABCDEF" required/>
+            <form id="join-jar-form">
+                <h2>Join Jar Form</h2>
+                <input type="text" name="roomCode" placeholder="Room Code..." required/>
                 <button type="submit">Join jar!</button>
             </form>
 
             <button onclick="addToJar(event)">Click Me!</button>
+        </div>
+
+        <div>
+            <h2>Make Jar</h2>
+            <button onclick="makeJar(event)">Click to make Jar!</button>
+            <h3 id="made-jar-code"></h3>
         </div>
     </div>
 
