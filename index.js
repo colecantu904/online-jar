@@ -8,7 +8,18 @@
 // navigate to it. Will I need users in order to track who is submitting to 
 // the jar?
 
-let currentRoom = '';
+
+// set up current jar
+let searchParams = new URLSearchParams(window.location.search);
+let currentRoom = searchParams.get('jar_code');
+
+if ( currentRoom ) {
+    joinJar(currentRoom);
+}
+
+// if there is no specific parameter, then we check the cookies!
+
+
 let currentRoomElement = document.getElementById("current-room-code");
 
 let currentAmount = 0;
@@ -35,26 +46,38 @@ async function getJarAmount( jarCode ) {
     }
 }
 
+async function joinJar( jarCode ) {
+
+    const responseData = await getJarAmount(jarCode);
+
+
+    if ( responseData.length > 0 ) {
+      // update values
+      currentAmount = responseData[0].jar_amount;
+      currentRoom = jarCode;
+
+      // update display
+      currentRoomElement.innerHTML = currentRoom;
+      currentAmountElement.innerHTML = currentAmount;
+    } else {
+        console.log("Invalid jar code!")
+    }
+
+
+
+}
+
+// form to specifically join a jar
 addForm.addEventListener("submit",  async ( event ) => {
 
     event.preventDefault();
 
+    // fetch the form data
     const formData = new FormData(addForm);
-
-    // works
     const data = Object.fromEntries(formData.entries());
 
-    currentRoom = data.roomCode;
-
-    currentRoomElement.innerHTML = currentRoom;
-
-    const responseData = await getJarAmount(currentRoom);
-
-    currentAmount = responseData[0].jar_amount;
-
-    currentAmountElement.innerHTML = currentAmount;
-
-    console.log(responseData);
+    // join the jar
+    await joinJar(data.roomCode);
     
 })
 
@@ -83,5 +106,10 @@ async function addToJar( event ) {
       console.log("Error fetching data at /api/get-room", error);
     }
 }
+
+// function createJar() {
+// makes random code sequences until one works??
+// how to prevent from spamming??
+// }
 
 window.addToJar = addToJar;
