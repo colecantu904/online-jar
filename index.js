@@ -29,6 +29,7 @@ const addForm = document.getElementById("join-jar-form");
 
 const newJarElement = document.getElementById("made-jar-code")
 
+let currentClicks = 0;
 
 async function getJarAmount( jarCode ) {
     try {
@@ -84,31 +85,48 @@ addForm.addEventListener("submit",  async ( event ) => {
     
 })
 
-async function addToJar( event ) {
+async function clickJar( event ) {
 
     event.preventDefault();
 
+    let clicks = currentClicks + 1;
+
+    setTimeout(() => {addToJar(clicks)}, 2000);
+
+    currentClicks++;
+
+    console.log(`Add ${currentClicks}`);
+    
+}
+
+async function addToJar( clicks ) {
+  // if the current amount of clicks matched what 
+  // was passed to the function in the timeout
+  // it might build up a stack but it will greatly reduce spam
+  // and put the weight of spam on the user
+  if ( currentClicks == clicks ) {
     try {
       const request = new Request("/api/add-jar", {
         method: "POST",
         headers: { "Content-type": "application/json" },
-        body: JSON.stringify({ roomCode: currentRoom, amount: 1 }),
+        body: JSON.stringify({ roomCode: currentRoom, amount: currentClicks }),
       });
 
       const response = await fetch(request);
-
-      console.log(response);
 
       const responseData = await response.json();
 
       currentAmount = responseData[0].jar_amount;
       currentAmountElement.innerHTML = currentAmount;
 
-      console.log(responseData);
+      currentClicks = 0;
+
     } catch (error) {
       console.log("Error fetching data at /api/get-room", error);
     }
+  }
 }
+
 
 async function makeJar( event ) {
     event.preventDefault()
