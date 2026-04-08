@@ -1,14 +1,3 @@
-// we got a good amount of logic to add here...
-
-// for this, need to figure out how to interact with cookies in js
-// have to find if there is a jar stored at the code, otherwise if
-// there is no code, or else, you can input a code into a form
-// which will redirect to the query url.
-// you can then send the query url to freinds so that they can immediantly
-// navigate to it. Will I need users in order to track who is submitting to 
-// the jar?
-
-
 // set up current jar
 let searchParams = new URLSearchParams(window.location.search);
 let currentRoom = searchParams.get('jar_code');
@@ -17,8 +6,23 @@ if ( currentRoom ) {
     joinJar(currentRoom);
 }
 
-// if there is no specific parameter, then we check the cookies!
+// check cookie for jar codes
+let recentJarsElement = document.getElementById("recent-jars-container")
 
+const rooms = localStorage.getItem('recentRooms');
+const roomsData = JSON.parse(rooms);
+
+if ( roomsData ) {
+  let elem = document.createElement('h2');
+  elem.innerHTML = "Recent Rooms:"
+  recentJarsElement.appendChild(elem);
+
+  for ( const room of roomsData ) {
+    let elem = document.createElement('p');
+    elem.innerHTML = `${room}`;
+    recentJarsElement.appendChild(elem);
+  }
+}
 
 let currentRoomElement = document.getElementById("current-room-code");
 
@@ -67,6 +71,24 @@ function setCounter( value ) {
   }
 }
 
+function addJarCodeToCookie( code ) {
+  let storage = "";
+
+  if ( localStorage.getItem('recentRooms') ) {
+    storage = localStorage.getItem('recentRooms');
+    storage = JSON.parse(storage);
+
+    storage.push(code);
+
+    storage = JSON.stringify(storage);
+    
+  } else {
+    storage = JSON.stringify([code]);
+  }
+
+  localStorage.setItem('recentRooms', storage);
+}
+
 async function getJarAmount( jarCode ) {
     try {
       const request = new Request("api/get-current", {
@@ -94,6 +116,8 @@ async function joinJar( jarCode ) {
       setJarCode(jarCode);
       setJarAmount(responseData[0].jar_amount)
       
+      addJarCodeToCookie(jarCode);
+      
     } else {
         console.log("Invalid jar code!")
     }
@@ -115,15 +139,18 @@ addForm.addEventListener("submit",  async ( event ) => {
 
 async function clickJar( event ) {
 
+  if ( getJarCode() ) {
     event.preventDefault();
 
     let clicks = getCounter() + 1;
 
-    setTimeout(() => {addToJar(clicks)}, 2000);
+    setTimeout(() => {addToJar(clicks)}, 500);
 
     setCounter(clicks);
-
-    console.log(`Add ${clicks}`);
+  } else {
+    setCounter("You need to join a jar!")
+    setTimeout(() => {setCounter(0)}, 500)
+  }
     
 }
 
