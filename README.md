@@ -6,4 +6,4 @@
 - some simple ui
 - maybe jsut scrap event tracking for now? yea
 - some cron job to scrap unused jars or some span preventions from creating jars
-- saving most recently joined jar to cookie
+- make getter and setters to jar amount and jar code

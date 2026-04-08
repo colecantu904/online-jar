@@ -30,6 +30,42 @@ const addForm = document.getElementById("join-jar-form");
 const newJarElement = document.getElementById("made-jar-code")
 
 let currentClicks = 0;
+let currentCounterElement = document.getElementById("current-counter");
+
+function getJarCode() {
+  return currentRoom
+}
+
+function setJarCode( value ) {
+
+    currentRoom = value;
+    currentRoomElement.innerHTML = currentRoom;
+    addForm.value = currentRoom;
+
+}
+
+function getJarAmount() {
+  return currentAmount
+}
+
+function setJarAmount( value ) {
+  currentAmount = value;
+  currentAmountElement.innerHTML = value;
+}
+
+function getCounter() {
+  return currentClicks
+}
+
+function setCounter( value ) {
+  currentClicks = value;
+
+  if ( value == 0 ) {
+    currentCounterElement.innerHTML = ``
+  } else {
+    currentCounterElement.innerHTML = `+ ${value}`
+  }
+}
 
 async function getJarAmount( jarCode ) {
     try {
@@ -55,20 +91,12 @@ async function joinJar( jarCode ) {
 
 
     if ( responseData.length > 0 ) {
-      // update values
-      currentAmount = responseData[0].jar_amount;
-      currentRoom = jarCode;
-
-      // update display
-      currentRoomElement.innerHTML = currentRoom;
-      currentAmountElement.innerHTML = currentAmount;
-      addForm.value = currentRoom;
+      setJarCode(jarCode);
+      setJarAmount(responseData[0].jar_amount)
+      
     } else {
         console.log("Invalid jar code!")
     }
-
-
-
 }
 
 // form to specifically join a jar
@@ -89,13 +117,13 @@ async function clickJar( event ) {
 
     event.preventDefault();
 
-    let clicks = currentClicks + 1;
+    let clicks = getCounter() + 1;
 
     setTimeout(() => {addToJar(clicks)}, 2000);
 
-    currentClicks++;
+    setCounter(clicks);
 
-    console.log(`Add ${currentClicks}`);
+    console.log(`Add ${clicks}`);
     
 }
 
@@ -104,25 +132,24 @@ async function addToJar( clicks ) {
   // was passed to the function in the timeout
   // it might build up a stack but it will greatly reduce spam
   // and put the weight of spam on the user
-  if ( currentClicks == clicks ) {
+  if ( getCounter() == clicks ) {
     try {
       const request = new Request("/api/add-jar", {
         method: "POST",
         headers: { "Content-type": "application/json" },
-        body: JSON.stringify({ roomCode: currentRoom, amount: currentClicks }),
+        body: JSON.stringify({ roomCode: getJarCode(), amount: getCounter() }),
       });
 
       const response = await fetch(request);
 
       const responseData = await response.json();
 
-      currentAmount = responseData[0].jar_amount;
-      currentAmountElement.innerHTML = currentAmount;
+      setJarAmount(responseData[0].jar_amount);
 
-      currentClicks = 0;
+      setCounter(0);
 
     } catch (error) {
-      console.log("Error fetching data at /api/get-room", error);
+      console.log("Error fetching data at /api/add-jar", error);
     }
   }
 }
@@ -137,10 +164,12 @@ async function makeJar( event ) {
 
     let madeRoomCode = '';
     let foundValid = false;
+    let trialLimit = 0;
 
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-    while ( !foundValid ) {
+    try {
+      while ( !foundValid ) {
 
       for (i = 0; i < 6; i++) {
         madeRoomCode += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -157,7 +186,17 @@ async function makeJar( event ) {
       if ( !(response.length > 0) ) {
         foundValid = true;
       }
+
+      if ( trialLimit > 4 ) {
+        throw new Error("Could not generate a random room.")
+      }
+
+      trialLimit++;
     }
+    } catch (error) {
+      console.log("Room code search timed out.", error)
+    }
+    
 
     // update display with share url
     let url = new URL(document.location.href);
