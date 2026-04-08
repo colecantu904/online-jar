@@ -74,14 +74,15 @@ function setCounter( value ) {
 function addJarCodeToCookie( code ) {
   let storage = "";
 
-  if ( localStorage.getItem('recentRooms') ) {
+  if ( localStorage.getItem('recentRooms')) {
     storage = localStorage.getItem('recentRooms');
     storage = JSON.parse(storage);
 
-    storage.push(code);
+    if ( !storage.includes(code) ) {
+      storage.push(code);
 
-    storage = JSON.stringify(storage);
-    
+      storage = JSON.stringify(storage);
+    }
   } else {
     storage = JSON.stringify([code]);
   }
