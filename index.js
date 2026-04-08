@@ -31,7 +31,8 @@ let currentAmountElement = document.getElementById("current-jar-amount");
 
 const addForm = document.getElementById("join-jar-form");
 
-const newJarElement = document.getElementById("made-jar-code")
+const newJarElement = document.getElementById("made-jar-code-link")
+const newJarCode = document.getElementById("made-jar-code")
 
 let currentClicks = 0;
 let currentCounterElement = document.getElementById("current-counter");
@@ -74,7 +75,7 @@ function setCounter( value ) {
 function addJarCodeToCookie( code ) {
   let storage = "";
 
-  if ( localStorage.getItem('recentRooms')) {
+  if ( localStorage.getItem('recentRooms') ) {
     storage = localStorage.getItem('recentRooms');
     storage = JSON.parse(storage);
 
@@ -83,11 +84,14 @@ function addJarCodeToCookie( code ) {
 
       storage = JSON.stringify(storage);
     }
+    
+    console.log(storage);
+
   } else {
-    storage = JSON.stringify([code]);
+    storage = [code];
   }
 
-  localStorage.setItem('recentRooms', storage);
+  localStorage.setItem('recentRooms', JSON.stringify(storage));
 }
 
 async function getJarAmount( jarCode ) {
@@ -115,7 +119,7 @@ async function joinJar( jarCode ) {
 
     if ( responseData.length > 0 ) {
       setJarCode(jarCode);
-      setJarAmount(responseData[0].jar_amount)
+      setJarAmount(responseData[0].jar_amount);
       
       addJarCodeToCookie(jarCode);
       
@@ -231,6 +235,7 @@ async function makeJar( event ) {
 
     let newUrl = url.origin + url.pathname;
 
+    newJarCode.innerHTML = madeRoomCode
     newJarElement.innerHTML = `${newUrl}?jar_code=${madeRoomCode}`
     
 }
